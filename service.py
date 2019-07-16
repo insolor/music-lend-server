@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from flask import Flask, request, abort
+import json
 import uuid
 
 app = Flask(__name__)
@@ -12,6 +13,9 @@ class User:
     
     def check_password(self, password):
         return self.__password == password
+
+    def json(self):
+        return json.dumps(dict(isadmin=self.is_admin))
 
 
 users = {
@@ -30,7 +34,7 @@ def root():
 
 @app.route('/auth', methods=['POST'])
 def auth():
-    data =  request.get_json()
+    data = request.get_json()
 
     if 'username' not in data or 'password' not in data:
         abort(400)
@@ -48,6 +52,19 @@ def auth():
     sessions[token] = user
 
     return str(token)
+
+
+@app.route('/user/me', methods=['GET'])
+def get_user():
+    print(dict(request.args))
+    if 'token' not in request.args:
+        abort(400)
+    
+    token = request.args['token']
+    if token not in sessions:
+        abort(403)
+    
+    return sessions[token].json()
 
 
 if __name__ == "__main__":
