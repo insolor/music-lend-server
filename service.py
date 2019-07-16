@@ -56,7 +56,6 @@ def auth():
 
 @app.route('/user/me', methods=['GET'])
 def get_user():
-    print(dict(request.args))
     if 'token' not in request.args:
         abort(400)
     
