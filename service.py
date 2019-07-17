@@ -65,6 +65,39 @@ def get_user():
     
     return sessions[token].json()
 
+from decimal import Decimal
+
+
+class Instrument:
+    def __init__(self, id, name, description, price):
+        self.id = id
+        self.name = name
+        self.description = description
+        self.price = Decimal(price)
+    
+    def as_dict(self):
+        return dict(id=self.id, name=self.name, description=self.description, price=str(self.price))
+
+
+available_instruments = [
+    Instrument(1, "Гитара аккустическая 6-струнная", "Some description", 100),
+    Instrument(2, "Электрогитара", "Еще какое-то описание", 123),
+    Instrument(3, "Барабанная установка", "Описание", 321),
+    Instrument(4, "Бас-гитара", "Описание бас-гитары", 444)
+]
+
+
+@app.route('/instruments/available', methods=['GET'])
+def get_available_instruments():
+    if 'token' not in request.args:
+        abort(400)
+    
+    token = request.args['token']
+    if token not in sessions:
+        abort(403)
+    
+    return json.dumps([instr.as_dict() for instr in available_instruments])
+
 
 if __name__ == "__main__":
     app.debug = True
