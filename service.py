@@ -48,10 +48,10 @@ def auth():
     if not user.check_password(password):
         abort(403)
 
-    token = uuid.uuid4()
+    token = str(uuid.uuid4())
     sessions[token] = user
 
-    return str(token)
+    return token
 
 
 @app.route('/user/me', methods=['GET'])
