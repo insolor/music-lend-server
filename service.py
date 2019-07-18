@@ -150,6 +150,17 @@ def get_cart():
     return json.dumps(cart.as_dict())
 
 
+# TODO:
+# get_instruments_in_use // GET /instruments/inuse/me
+# add_to_cart // PUT /cart/my & instrument=ID
+# remove_from_cart // DELETE /cart/my & instrument=ID
+# remove_from_cart_all // DELETE /cart/my/all
+# calculate_cart // GET /cart/my/calculation
+# get_promocode_percent // GET /promocode & text=TEXT
+# pay // PUT /cart/my/payment
+# return_instrument // DELETE /instruments/in_use/me & instrument=ID
+# return_all_instruments // DELETE /instruments/in_use/me/all
+
 if __name__ == "__main__":
     app.debug = True
     app.run(port=8080)
