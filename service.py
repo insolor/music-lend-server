@@ -54,16 +54,20 @@ def auth():
     return token
 
 
-@app.route('/user/me', methods=['GET'])
-def get_user():
+def check_token(request):
     if 'token' not in request.args:
         abort(400)
     
     token = request.args['token']
     if token not in sessions:
         abort(403)
-    
-    return sessions[token].json()
+
+    return sessions[token]
+
+@app.route('/user/me', methods=['GET'])
+def get_user():
+    user = check_token(request)
+    return user.json()
 
 from decimal import Decimal
 
@@ -89,13 +93,7 @@ available_instruments = [
 
 @app.route('/instruments/available', methods=['GET'])
 def get_available_instruments():
-    if 'token' not in request.args:
-        abort(400)
-    
-    token = request.args['token']
-    if token not in sessions:
-        abort(403)
-    
+    check_token(request)
     return json.dumps([instr.as_dict() for instr in available_instruments])
 
 
