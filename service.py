@@ -114,12 +114,12 @@ def add_instrument_to_cart():
         abort(400)
     
     id = request.args['id']
-    if id not in available_instruments:
-        abort(404)  # instrument not found
+    if id not in available_instruments:  # instrument not available
+        abort(404)  # not found
 
     cart = carts[user]  # type: set
 
-    if id in cart:
+    if id in cart:  # instrument already in cart
         abort(412)  # 412 Precondition Failed ? or 406 not acceptable?
     
     available_instruments.remove(id)
