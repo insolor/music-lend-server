@@ -83,18 +83,56 @@ class Instrument:
         return dict(id=self.id, name=self.name, description=self.description, price=str(self.price))
 
 
-available_instruments = [
-    Instrument(1, "Гитара аккустическая 6-струнная", "Some description", 100),
-    Instrument(2, "Электрогитара", "Еще какое-то описание", 123),
-    Instrument(3, "Барабанная установка", "Описание", 321),
-    Instrument(4, "Бас-гитара", "Описание бас-гитары", 444)
+instruments = [
+    Instrument(1, "Гитара аккустическая 6-струнная", "Some description", 100)),
+    Instrument(2, "Электрогитара", "Еще какое-то описание", 123)),
+    Instrument(3, "Барабанная установка", "Описание", 321)),
+    Instrument(4, "Бас-гитара", "Описание бас-гитары", 444))
 ]
+
+instruments_index = {item.id: item for item in instruments}
+
+
+available_instruments = {item.id for item in insruments if item is not None}
 
 
 @app.route('/instruments/available', methods=['GET'])
 def get_available_instruments():
     check_token(request)
-    return json.dumps([instr.as_dict() for instr in available_instruments])
+    return json.dumps([instruments_index[id].as_dict() for id in available_instruments])
+
+
+from collection import defaultdict
+
+carts = defaultdict(set)
+
+
+@app.route('/cart/my', methods=['PUT'])
+def add_instrument_to_cart():
+    user = check_token(request)
+    if 'id' not in request.args:
+        abort(400)
+    
+    id = request.args['id']
+    if id not in available_instruments:
+        abort(404)  # instrument not found
+
+    cart = carts[user]  # type: set
+
+    if id in cart:
+        abort(412)  # 412 Precondition Failed ? or 406 not acceptable?
+    
+    available_instruments.remove(id)
+    cart.add(id)
+
+    return 'OK'
+
+
+@app.route('/cart/my', methods=['GET'])
+def get_available_instruments():
+    user = check_token(request)
+    cart = carts[user]
+    return json.dumps([instruments_index[id].as_dict() for id in cart])
 
 
 if __name__ == "__main__":
