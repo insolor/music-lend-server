@@ -84,16 +84,16 @@ class Instrument:
 
 
 instruments = [
-    Instrument(1, "Гитара аккустическая 6-струнная", "Some description", 100)),
-    Instrument(2, "Электрогитара", "Еще какое-то описание", 123)),
-    Instrument(3, "Барабанная установка", "Описание", 321)),
-    Instrument(4, "Бас-гитара", "Описание бас-гитары", 444))
+    Instrument(1, "Гитара аккустическая 6-струнная", "Some description", 100),
+    Instrument(2, "Электрогитара", "Еще какое-то описание", 123),
+    Instrument(3, "Барабанная установка", "Описание", 321),
+    Instrument(4, "Бас-гитара", "Описание бас-гитары", 444)
 ]
 
 instruments_index = {item.id: item for item in instruments}
 
 
-available_instruments = {item.id for item in insruments if item is not None}
+available_instruments = {item.id for item in instruments if item is not None}
 
 
 @app.route('/instruments/available', methods=['GET'])
@@ -102,9 +102,24 @@ def get_available_instruments():
     return json.dumps([instruments_index[id].as_dict() for id in available_instruments])
 
 
-from collection import defaultdict
+from collections import defaultdict
 
-carts = defaultdict(set)
+
+class Cart:
+    def __init__(self, instruments=None, promocode='', days=1):
+        self.instruments = instruments or set()
+        self.promocode = promocode
+        self.days = days
+    
+    def as_dict(self):
+        return dict(
+            instruments=[instruments_index[id].as_dict() for id in self.instruments],
+            promocode=self.promocode,
+            days=self.days
+        )
+
+
+carts = defaultdict(Cart)
 
 
 @app.route('/cart/my', methods=['PUT'])
@@ -129,10 +144,10 @@ def add_instrument_to_cart():
 
 
 @app.route('/cart/my', methods=['GET'])
-def get_available_instruments():
+def get_cart():
     user = check_token(request)
-    cart = carts[user]
-    return json.dumps([instruments_index[id].as_dict() for id in cart])
+    cart = carts[user]  # type: Cart
+    return json.dumps(cart.as_dict())
 
 
 if __name__ == "__main__":
