@@ -64,6 +64,7 @@ def check_token(request):
 
     return sessions[token]
 
+
 @app.route('/user/me', methods=['GET'])
 def get_user():
     user = check_token(request)
@@ -196,9 +197,21 @@ def get_instruments_in_use():
     return json.dumps([instruments_index[id].as_dict() for id in instruments])
 
 
+promocodes = {'PROMOCODE': 15}
+
+
+@app.route('/promocode', methods=['GET'])
+def get_promocode_percent():
+    check_token(request)
+    if 'text' not in request.args:
+        abort(400)
+    
+    promocode = request.args['text']
+    return promocodes.get(promocode, 0)
+
+
 # TODO:
 # calculate_cart // GET /cart/my/calculation
-# get_promocode_percent // GET /promocode & text=TEXT
 # pay // PUT /cart/my/payment
 # return_instrument // DELETE /instruments/in_use/me & instrument=ID
 # return_all_instruments // DELETE /instruments/in_use/me/all
