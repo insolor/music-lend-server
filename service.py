@@ -150,8 +150,17 @@ def get_cart():
     return json.dumps(cart.as_dict())
 
 
+instruments_in_use = defaultdict(set)
+
+
+@app.route('/instruments/inuse/me', methods=['GET'])
+def get_instruments_in_use():
+    user = check_token(request)
+    instruments = instruments_in_use[user]
+    return json.dumps([instruments_index[id].as_dict() for id in instruments])
+
+
 # TODO:
-# get_instruments_in_use // GET /instruments/inuse/me
 # add_to_cart // PUT /cart/my & instrument=ID
 # remove_from_cart // DELETE /cart/my & instrument=ID
 # remove_from_cart_all // DELETE /cart/my/all
