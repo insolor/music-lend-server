@@ -143,6 +143,27 @@ def add_instrument_to_cart():
     return 'OK'
 
 
+@app.route('/cart/my', methods=['DELETE'])
+def remove_from_cart():
+    user = check_token(request)
+    if 'id' not in request.args:
+        abort(400)
+    
+    id = request.args['id']
+    cart = carts[user]  # type: set
+
+    if id not in cart:  # instrument not available
+        abort(404)  # not found
+
+    if id in available_instruments:  # instrument already in cart
+        abort(412)  # 412 Precondition Failed ? or 406 not acceptable?
+    
+    cart.remove(id)
+    available_instruments.add(id)
+
+    return 'OK'
+
+
 @app.route('/cart/my', methods=['GET'])
 def get_cart():
     user = check_token(request)
@@ -161,7 +182,6 @@ def get_instruments_in_use():
 
 
 # TODO:
-# remove_from_cart // DELETE /cart/my & instrument=ID
 # remove_from_cart_all // DELETE /cart/my/all
 # calculate_cart // GET /cart/my/calculation
 # get_promocode_percent // GET /promocode & text=TEXT
