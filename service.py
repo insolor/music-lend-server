@@ -153,10 +153,10 @@ def remove_from_cart():
     cart = carts[user]  # type: set
 
     if id not in cart:  # instrument not available
-        abort(404)  # not found
+        abort(406)  # not acceptable
 
     if id in available_instruments:  # instrument already in cart
-        abort(412)  # 412 Precondition Failed ? or 406 not acceptable?
+        abort(406)  # not acceptable
     
     cart.remove(id)
     available_instruments.add(id)
