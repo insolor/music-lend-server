@@ -118,6 +118,17 @@ class Cart:
             promocode=self.promocode,
             days=self.days
         )
+    
+    def calculate(self):
+        sub = sum(item.price for item in self.instruments) * self.days
+        discount_percent = promocodes.get(self.promocode, 0)
+        if discount_percent == 0 and len(self.instruments) >= 3:
+            discount_percent = 5
+
+        discount_sum = sub * 5 / 100
+        sum_to_pay = sub - discount_sum
+
+        return dict(discount_percent=discount_percent, discount_sum=discount_sum, sum=sum_to_pay)
 
 
 carts = defaultdict(Cart)
@@ -208,6 +219,14 @@ def get_promocode_percent():
     
     promocode = request.args['text']
     return promocodes.get(promocode, 0)
+
+
+
+@app.route('/cart/my/calculation', methods=['GET'])
+def calculate_cart():
+    user = check_token(request)
+    cart = carts[user]
+    return json.dumps(cart.calculate())
 
 
 # TODO:
