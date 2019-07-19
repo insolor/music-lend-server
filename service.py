@@ -164,6 +164,21 @@ def remove_from_cart():
     return 'OK'
 
 
+@app.route('/cart/my/all', methods=['DELETE'])
+def remove_from_cart_all():
+    user = check_token(request)
+    
+    cart = carts[user]  # type: set
+
+    if available_instruments & cart:  # Some instruments are in cart and in avaliable instruments simultaneously
+        abort(406)  # not acceptable
+    
+    available_instruments.update(cart)
+    cart.clear()
+
+    return 'OK'
+
+
 @app.route('/cart/my', methods=['GET'])
 def get_cart():
     user = check_token(request)
@@ -182,7 +197,6 @@ def get_instruments_in_use():
 
 
 # TODO:
-# remove_from_cart_all // DELETE /cart/my/all
 # calculate_cart // GET /cart/my/calculation
 # get_promocode_percent // GET /promocode & text=TEXT
 # pay // PUT /cart/my/payment
