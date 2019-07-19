@@ -161,7 +161,6 @@ def get_instruments_in_use():
 
 
 # TODO:
-# add_to_cart // PUT /cart/my & instrument=ID
 # remove_from_cart // DELETE /cart/my & instrument=ID
 # remove_from_cart_all // DELETE /cart/my/all
 # calculate_cart // GET /cart/my/calculation
