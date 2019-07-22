@@ -221,7 +221,6 @@ def get_promocode_percent():
     return promocodes.get(promocode, 0)
 
 
-
 @app.route('/cart/my/calculation', methods=['GET'])
 def calculate_cart():
     user = check_token(request)
@@ -233,13 +232,31 @@ def calculate_cart():
 def pay():
     user = check_token(request)
     cart = carts[user]  # type: Cart
-    instruments_in_use[user].add(cart.instruments)
+    instruments_in_use[user] |= cart.instruments
     cart.instruments.clear()
     return 'OK'
 
 
-# TODO: return_instrument // DELETE /instruments/in_use/me & instrument=ID
-# TODO: return_all_instruments // DELETE /instruments/in_use/me/all
+@app.route('/instruments/in_use/me', methods=['DELETE'])
+def return_instrument():
+    user = check_token(request)
+    if 'id' not in request.args:
+        abort(400)
+    
+    id = request.args['id']
+    instruments = instruments_in_use[user]
+    instruments.remove(id)
+    available_instruments.add(id)
+    return 'OK'
+
+
+@app.route('/instruments/in_use/me/all', methods=['DELETE'])
+def return_all_instrument():
+    user = check_token(request)
+    available_instruments.update(instruments_in_use[user])
+    instruments_in_use[user].clear()
+    return 'OK'
+
 
 if __name__ == "__main__":
     app.debug = True
