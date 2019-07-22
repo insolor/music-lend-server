@@ -229,11 +229,9 @@ def calculate_cart():
     return json.dumps(cart.calculate())
 
 
-# TODO:
-# calculate_cart // GET /cart/my/calculation
-# pay // PUT /cart/my/payment
-# return_instrument // DELETE /instruments/in_use/me & instrument=ID
-# return_all_instruments // DELETE /instruments/in_use/me/all
+# TODO: pay // PUT /cart/my/payment
+# TODO: return_instrument // DELETE /instruments/in_use/me & instrument=ID
+# TODO: return_all_instruments // DELETE /instruments/in_use/me/all
 
 if __name__ == "__main__":
     app.debug = True
