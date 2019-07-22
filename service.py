@@ -229,7 +229,15 @@ def calculate_cart():
     return json.dumps(cart.calculate())
 
 
-# TODO: pay // PUT /cart/my/payment
+@app.route('/cart/my/payment', methods=['PUT'])
+def pay():
+    user = check_token(request)
+    cart = carts[user]  # type: Cart
+    instruments_in_use[user].add(cart.instruments)
+    cart.instruments.clear()
+    return 'OK'
+
+
 # TODO: return_instrument // DELETE /instruments/in_use/me & instrument=ID
 # TODO: return_all_instruments // DELETE /instruments/in_use/me/all
 
