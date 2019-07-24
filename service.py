@@ -232,7 +232,7 @@ def get_promocode_percent():
         abort(400)
     
     promocode = request.args['text']
-    return promocodes.get(promocode, 0)
+    return str(promocodes.get(promocode, 0))
 
 
 @app.route('/cart/my/calculation', methods=['GET'])
