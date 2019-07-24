@@ -158,7 +158,7 @@ def add_instrument_to_cart():
 @app.route('/cart/my/data', methods=['PUT'])
 def update_cart_data():
     user = check_token(request)
-    if 'promocode' not in request.args or '' not in request.args:
+    if 'promocode' not in request.args or 'days' not in request.args:
         abort(400)
 
     cart = carts[user]  # type: Cart
