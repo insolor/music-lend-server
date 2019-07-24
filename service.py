@@ -120,7 +120,7 @@ class Cart:
         )
     
     def calculate(self):
-        sub = sum(instruments[id].price for id in self.instruments) * self.days
+        sub = sum(instruments_index[id].price for id in self.instruments) * self.days
         discount_percent = promocodes.get(self.promocode, 0)
         if discount_percent == 0 and len(self.instruments) >= 3:
             discount_percent = 5
@@ -128,7 +128,7 @@ class Cart:
         discount_sum = sub * 5 / 100
         sum_to_pay = sub - discount_sum
 
-        return dict(discount_percent=discount_percent, discount_sum=discount_sum, sum=sum_to_pay)
+        return dict(discount_percent=discount_percent, discount_sum=str(discount_sum), sum=str(sum_to_pay))
 
 
 carts = defaultdict(Cart)
