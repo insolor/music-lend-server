@@ -243,7 +243,7 @@ def return_instrument():
     if 'id' not in request.args:
         abort(400)
     
-    id = request.args['id']
+    id = int(request.args['id'])
     instruments = instruments_in_use[user]
     instruments.remove(id)
     available_instruments.add(id)
