@@ -120,7 +120,7 @@ class Cart:
         )
     
     def calculate(self):
-        sub = sum(item.price for item in self.instruments) * self.days
+        sub = sum(instruments[id].price for id in self.instruments) * self.days
         discount_percent = promocodes.get(self.promocode, 0)
         if discount_percent == 0 and len(self.instruments) >= 3:
             discount_percent = 5
