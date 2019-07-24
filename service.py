@@ -140,7 +140,7 @@ def add_instrument_to_cart():
     if 'id' not in request.args:
         abort(400)
     
-    id = request.args['id']
+    id = int(request.args['id'])
     if id not in available_instruments:  # instrument not available
         abort(404)  # not found
 
@@ -161,7 +161,7 @@ def remove_from_cart():
     if 'id' not in request.args:
         abort(400)
     
-    id = request.args['id']
+    id = int(request.args['id'])
     cart = carts[user]  # type: set
 
     if id not in cart:  # instrument not available
