@@ -150,7 +150,7 @@ def add_instrument_to_cart():
         abort(412)  # 412 Precondition Failed ? or 406 not acceptable?
     
     available_instruments.remove(id)
-    cart.add(id)
+    cart.instruments.add(id)
 
     return 'OK'
 
@@ -170,7 +170,7 @@ def remove_from_cart():
     if id in available_instruments:  # instrument already in cart
         abort(406)  # not acceptable
     
-    cart.remove(id)
+    cart.instruments.remove(id)
     available_instruments.add(id)
 
     return 'OK'
@@ -180,13 +180,13 @@ def remove_from_cart():
 def remove_from_cart_all():
     user = check_token(request)
     
-    cart = carts[user]  # type: set
+    cart = carts[user]  # type: Cart
 
     if available_instruments & cart:  # Some instruments are in cart and in avaliable instruments simultaneously
         abort(406)  # not acceptable
     
-    available_instruments.update(cart)
-    cart.clear()
+    available_instruments.update(cart.instruments)
+    cart.instruments.clear()
 
     return 'OK'
 
