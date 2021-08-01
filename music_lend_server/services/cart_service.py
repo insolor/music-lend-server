@@ -1,5 +1,6 @@
-from .fake_base import promocode_repository, instrument_repository, cart_repository
-from .models import Cart, User
+from ..models import Cart, User
+from ..repositories.carts import promocode_repository, cart_repository
+from ..repositories.instruments import instrument_repository
 
 
 def calculate(cart: Cart):

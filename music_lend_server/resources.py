@@ -2,11 +2,10 @@ import json
 
 from flask import request, abort
 
-import instrument_service
-from . import cart_service
 from .app import get_app
 from .auth_resource import check_token
-from .fake_base import cart_repository, promocode_repository
+from .repositories.carts import cart_repository, promocode_repository
+from .services import instrument_service, cart_service
 
 app = get_app()
 

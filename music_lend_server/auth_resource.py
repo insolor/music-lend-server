@@ -4,7 +4,8 @@ from functools import wraps
 from flask import request, abort
 
 from .app import get_app
-from .fake_base import user_repository, sessions_repository
+from .repositories.sessions import sessions_repository
+from .repositories.users import user_repository
 
 app = get_app()
 

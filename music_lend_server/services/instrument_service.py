@@ -1,7 +1,8 @@
 from typing import Set
 
-from .fake_base import instrument_repository
-from .models import Instrument, User
+from music_lend_server.models.instrument import Instrument
+from music_lend_server.models.user import User
+from music_lend_server.repositories.instruments import instrument_repository
 
 
 def get_available_instruments() -> Set[Instrument]:
