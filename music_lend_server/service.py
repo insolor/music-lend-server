@@ -1,8 +1,10 @@
+import json
+
 from flask import request, abort
 
 from app import get_app
 from .auth_resource import check_token
-from .models import *
+from .fake_base import cart_repository, instrument_repository, promocode_repository
 
 app = get_app()
 
@@ -22,7 +24,8 @@ def get_user():
 @check_token
 @app.route('/instruments/available', methods=['GET'])
 def get_available_instruments():
-    return json.dumps([instruments_index[instrument_id].as_dict() for instrument_id in available_instruments])
+    return json.dumps([instrument_repository.get_instrument(instrument_id).as_dict()
+                       for instrument_id in instrument_repository.get_available_instruments()])
 
 
 @check_token
@@ -33,15 +36,17 @@ def add_instrument_to_cart():
         abort(400)
 
     instrument_id = int(request.args['id'])
-    if instrument_id not in available_instruments:  # instrument not available
+    instrument = instrument_repository.get_instrument(instrument_id)
+    if not instrument.is_available:
         abort(404)  # not found
 
-    cart = carts[user]  # type: Cart
+    cart = cart_repository.get_cart_by_user(user)
 
-    if instrument_id in cart.instruments:  # instrument already in cart
+    if instrument in cart.instruments:
         abort(412)  # 412 Precondition Failed ? or 406 not acceptable?
 
-    available_instruments.remove(instrument_id)
+    cart_repository.add_instrument_to_cart(cart, instrument)
+
     cart.instruments.add(instrument_id)
 
     return 'OK'
@@ -54,7 +59,7 @@ def update_cart_data():
     if 'promocode' not in request.args or 'days' not in request.args:
         abort(400)
 
-    cart = carts[user]  # type: Cart
+    cart = cart_repository.get_cart_by_user(user)
 
     cart.promocode = request.args['promocode']
     cart.days = int(request.args['days'])
@@ -70,16 +75,13 @@ def remove_from_cart():
         abort(400)
 
     instrument_id = int(request.args['id'])
-    cart = carts[user]  # type: Cart
+    cart = cart_repository.get_cart_by_user(user)
 
-    if instrument_id not in cart.instruments:  # instrument not available
+    instrument = instrument_repository.get_instrument(instrument_id)
+    if instrument not in cart.instruments:  # instrument not in cart
         abort(406)  # not acceptable
 
-    if instrument_id in available_instruments:  # instrument already in cart
-        abort(406)  # not acceptable
-
-    cart.instruments.remove(instrument_id)
-    available_instruments.add(instrument_id)
+    instrument_repository.set_cart(instrument, None)
 
     return 'OK'
 
@@ -89,9 +91,9 @@ def remove_from_cart():
 def remove_from_cart_all():
     user = get_user(request)
 
-    cart = carts[user]  # type: Cart
-
-    if available_instruments & cart:  # Some instruments are in cart and in avaliable instruments simultaneously
+    cart = cart_repository.get_cart_by_user(user)
+    available_instruments = instrument_repository.get_available_instruments()
+    if available_instruments & cart:  # Some instruments are in cart and in available instruments simultaneously
         abort(406)  # not acceptable
 
     available_instruments.update(cart.instruments)
@@ -104,7 +106,7 @@ def remove_from_cart_all():
 @app.route('/cart/my', methods=['GET'])
 def get_cart():
     user = get_user(request)
-    cart = carts[user]  # type: Cart
+    cart = cart_repository.get_cart_by_user(user)
     return json.dumps(cart.as_dict())
 
 
@@ -112,8 +114,8 @@ def get_cart():
 @app.route('/instruments/inuse/me', methods=['GET'])
 def get_instruments_in_use():
     user = get_user(request)
-    instruments_in_use_by_user = instruments_in_use[user]
-    return json.dumps([instruments_index[instrument_id].as_dict() for instrument_id in instruments_in_use_by_user])
+    instruments_in_use_by_user = instrument_repository.get_instruments_in_use(user)
+    return json.dumps([instrument.as_dict() for instrument in instruments_in_use_by_user])
 
 
 @check_token
@@ -124,14 +126,14 @@ def get_promocode_percent():
         abort(400)
 
     promocode = request.args['text']
-    return str(promocodes.get(promocode, 0))
+    return str(promocode_repository.get_promocode_percent(promocode))
 
 
 @check_token
 @app.route('/cart/my/calculation', methods=['GET'])
 def calculate_cart():
     user = get_user(request)
-    cart = carts[user]
+    cart = cart_repository.get_cart_by_user(user)
     return json.dumps(cart.calculate())
 
 
@@ -139,9 +141,8 @@ def calculate_cart():
 @app.route('/cart/my/payment', methods=['PUT'])
 def pay():
     user = get_user(request)
-    cart = carts[user]  # type: Cart
-    instruments_in_use[user] |= cart.instruments
-    cart.instruments.clear()
+    cart = cart_repository.get_cart_by_user(user)
+    cart_repository.move_cart_to_user(cart)
     return 'OK'
 
 
@@ -153,9 +154,12 @@ def return_instrument():
         abort(400)
 
     instrument_id = int(request.args['id'])
-    instruments_in_use_by_user = instruments_in_use[user]
-    instruments_in_use_by_user.remove(instrument_id)
-    available_instruments.add(instrument_id)
+    instrument = instrument_repository.get_instrument(instrument_id)
+    in_use = instrument_repository.get_instruments_in_use(user)
+    if instrument not in in_use:  # instrument not in use by the user
+        abort(400)
+
+    instrument_repository.set_user(instrument, None)
     return 'OK'
 
 
@@ -163,6 +167,5 @@ def return_instrument():
 @app.route('/instruments/in_use/me/all', methods=['DELETE'])
 def return_all_instrument():
     user = get_user(request)
-    available_instruments.update(instruments_in_use[user])
-    instruments_in_use[user].clear()
+    instrument_repository.return_instruments_from_user(user)
     return 'OK'

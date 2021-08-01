@@ -4,24 +4,20 @@ from functools import wraps
 from flask import request, abort
 
 from app import get_app
-from .fake_base import sessions, users
+from music_lend_server.fake_base import user_repository, sessions_repository
 
 app = get_app()
-
-
-def check_token_func(req):
-    if 'token' not in req.args:
-        abort(400)
-
-    token = req.args['token']
-    if token not in sessions:
-        abort(403)
 
 
 def check_token(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        check_token_func(request)
+        if 'token' not in request.args:
+            abort(400)
+
+        if not user_repository.check_token(request.args['token']):
+            abort(403)
+
         func(*args, **kwargs)
 
     return wrapper
@@ -29,7 +25,7 @@ def check_token(func):
 
 def get_user(req):
     token = req.args['token']
-    return sessions[token]
+    return sessions_repository.get_user_by_token(token)
 
 
 @app.route('/auth', methods=['POST'])
@@ -41,14 +37,12 @@ def auth():
 
     username = data['username']
     password = data['password']
-    if username not in users:
+    if user_repository.check_user(username, password):
         abort(403)
 
-    user = users[username]
-    if not user.check_password(password):
-        abort(403)
+    user = user_repository.get_user_by_name(username)
 
     token = str(uuid.uuid4())
-    sessions[token] = user
+    sessions_repository.set_token(token, user)
 
     return token
