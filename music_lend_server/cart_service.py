@@ -1,5 +1,5 @@
-from .fake_base import promocode_repository
-from .models import Cart
+from .fake_base import promocode_repository, instrument_repository, cart_repository
+from .models import Cart, User
 
 
 def calculate(cart: Cart):
@@ -11,4 +11,35 @@ def calculate(cart: Cart):
     discount_sum = sub * 5 / 100
     sum_to_pay = sub - discount_sum
 
-    return dict(discount_percent=discount_percent, discount_sum=str(discount_sum), sum=str(sum_to_pay))
+    return dict(discount_percent=discount_percent,
+                discount_sum=str(discount_sum),
+                sum=str(sum_to_pay))
+
+
+def add_instrument_to_cart(user: User, instrument_id: int):
+    instrument = instrument_repository.get_instrument(instrument_id)
+    if not instrument.is_available:
+        raise ValueError("Chosen instrument is not available")
+
+    cart = cart_repository.get_cart_by_user(user)
+
+    if instrument in cart.instruments:
+        raise ValueError("Chosen instrument is already in cart")
+
+    cart_repository.add_instrument_to_cart(cart, instrument)
+
+    cart.instruments.add(instrument_id)
+
+
+def update_cart_data(user: User, promocode: str, days: int):
+    cart = cart_repository.get_cart_by_user(user)
+    cart_repository.update_cart_data(cart, promocode, days)
+
+
+def remove_instrument_from_cart(user: User, instrument_id: int):
+    cart = cart_repository.get_cart_by_user(user)
+    instrument = instrument_repository.get_instrument(instrument_id)
+    if instrument not in cart.instruments:
+        raise ValueError("Instrument not in cart")
+
+    instrument_repository.set_cart(instrument, None)

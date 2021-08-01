@@ -123,5 +123,10 @@ class CartRepository:
             instrument.cart = None
             instrument.user = cart.user
 
+    @staticmethod
+    def update_cart_data(cart: Cart, promocode: str, days: int):
+        cart.promocode = promocode
+        cart.days = days
+
 
 cart_repository = CartRepository()
