@@ -1,7 +1,6 @@
 from collections import defaultdict
 
-from .models import *
-
+from .models import Cart, Instrument, User
 
 carts = defaultdict(Cart)
 promocodes = {'PROMOCODE': 15}

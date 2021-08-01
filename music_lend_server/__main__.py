@@ -1,3 +1,3 @@
-from .service import app
+from app import get_app
 
-app.run(port=8080, debug=True)
+get_app().run(port=8080, debug=True)
