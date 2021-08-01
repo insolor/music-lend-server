@@ -3,8 +3,8 @@ from functools import wraps
 
 from flask import request, abort
 
-from app import get_app
-from music_lend_server.fake_base import user_repository, sessions_repository
+from .app import get_app
+from .fake_base import user_repository, sessions_repository
 
 app = get_app()
 

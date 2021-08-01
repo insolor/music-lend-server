@@ -2,7 +2,8 @@ import json
 
 from flask import request, abort
 
-from app import get_app
+from . import cart_service
+from .app import get_app
 from .auth_resource import check_token
 from .fake_base import cart_repository, instrument_repository, promocode_repository
 
@@ -24,7 +25,7 @@ def get_user():
 @check_token
 @app.route('/instruments/available', methods=['GET'])
 def get_available_instruments():
-    return json.dumps([instrument_repository.get_instrument(instrument_id).as_dict()
+    return json.dumps([instrument_repository.get_instrument(instrument_id).dict()
                        for instrument_id in instrument_repository.get_available_instruments()])
 
 
@@ -107,7 +108,7 @@ def remove_from_cart_all():
 def get_cart():
     user = get_user(request)
     cart = cart_repository.get_cart_by_user(user)
-    return json.dumps(cart.as_dict())
+    return json.dumps(cart.dict())
 
 
 @check_token
@@ -115,7 +116,7 @@ def get_cart():
 def get_instruments_in_use():
     user = get_user(request)
     instruments_in_use_by_user = instrument_repository.get_instruments_in_use(user)
-    return json.dumps([instrument.as_dict() for instrument in instruments_in_use_by_user])
+    return json.dumps([instrument.dict() for instrument in instruments_in_use_by_user])
 
 
 @check_token
@@ -134,7 +135,7 @@ def get_promocode_percent():
 def calculate_cart():
     user = get_user(request)
     cart = cart_repository.get_cart_by_user(user)
-    return json.dumps(cart.calculate())
+    return json.dumps(cart_service.calculate(cart))
 
 
 @check_token
