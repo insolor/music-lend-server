@@ -4,7 +4,8 @@ from flask import request, abort
 
 from .app import get_app
 from .auth_resource import check_token
-from .repositories.carts import cart_repository, promocode_repository
+from .repositories.carts import cart_repository
+from .repositories.promocode import promocode_repository
 from .services import instrument_service, cart_service
 
 app = get_app()
