@@ -1,11 +1,11 @@
 import uuid
 from functools import wraps
 
-from flask import request, abort
+from flask import request, abort, Request
 
 from .app import get_app
-from .repositories.sessions import sessions_repository
-from .repositories.users import user_repository
+from .repositories.sessions_repository import sessions_repository
+from .repositories.users_repository import user_repository
 
 app = get_app()
 
@@ -24,7 +24,7 @@ def check_token(func):
     return wrapper
 
 
-def get_user(req):
+def get_user(req: Request):
     token = req.args['token']
     return sessions_repository.get_user_by_token(token)
 

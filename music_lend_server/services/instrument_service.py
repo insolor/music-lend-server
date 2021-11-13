@@ -1,16 +1,16 @@
-from typing import Set
+from typing import List
 
 from music_lend_server.models.instrument import Instrument
 from music_lend_server.models.user import User
-from music_lend_server.repositories.instruments import instrument_repository
+from music_lend_server.repositories.instruments_repository import instrument_repository
 
 
-def get_available_instruments() -> Set[Instrument]:
-    return instrument_repository.get_available_instruments()
+def get_available_instruments() -> List[Instrument]:
+    return list(instrument_repository.get_available_instruments())
 
 
-def get_instruments_in_use(user: User) -> Set[Instrument]:
-    return instrument_repository.get_instruments_in_use(user)
+def get_instruments_in_use(user: User) -> List[Instrument]:
+    return list(instrument_repository.get_instruments_in_use(user))
 
 
 def return_instrument(user: User, instrument_id: int):

@@ -1,15 +1,16 @@
-from typing import Optional, Iterable, MutableMapping
+from dataclasses import dataclass, field
+from typing import MutableMapping, List
 
 from ..models import User
 
 
+@dataclass
 class UserRepository:
-    def __init__(self, users: Optional[Iterable[User]] = None):
-        self.users: MutableMapping[str, User] = dict()
+    users: MutableMapping = field(default_factory=dict)
 
-        if users:
-            for user in users:
-                self.users[user.name] = user
+    @classmethod
+    def from_list(cls, users: List[User]) -> "UserRepository":
+        return cls(dict(map(lambda item: (item.name, item), users)))
 
     def check_user(self, name, password) -> bool:
         return name in self.users and self.get_user_by_name(name).check_password(password)
@@ -18,7 +19,7 @@ class UserRepository:
         return self.users[name]
 
 
-user_repository = UserRepository([
+user_repository = UserRepository.from_list([
     User(name="admin", password="123", is_admin=True),
     User(name="user", password="345"),
 ])

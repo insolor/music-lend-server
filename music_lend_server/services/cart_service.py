@@ -1,7 +1,7 @@
 from ..models import Cart, User
-from ..repositories.carts import cart_repository
-from ..repositories.instruments import instrument_repository
-from ..repositories.promocode import promocode_repository
+from ..repositories.carts_repository import cart_repository
+from ..repositories.instruments_repository import instrument_repository
+from ..repositories.promocode_repository import promocode_repository
 
 
 def calculate(cart: Cart):

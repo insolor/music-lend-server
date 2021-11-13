@@ -3,9 +3,9 @@ import json
 from flask import request, abort
 
 from .app import get_app
-from .auth_resource import check_token
-from .repositories.carts import cart_repository
-from .repositories.promocode import promocode_repository
+from .auth_resource import check_token, get_user as auth_get_user
+from .repositories.carts_repository import cart_repository
+from .repositories.promocode_repository import promocode_repository
 from .services import instrument_service, cart_service
 
 app = get_app()
@@ -19,7 +19,7 @@ def root():
 @check_token
 @app.route('/user/me', methods=['GET'])
 def get_user():
-    user = get_user(request)
+    user = auth_get_user(request)
     return user.json()
 
 
@@ -38,7 +38,7 @@ def add_instrument_to_cart():
 
     instrument_id = int(request.args['id'])
     try:
-        add_instrument_to_cart(user, instrument_id)
+        cart_service.add_instrument_to_cart(user, instrument_id)
     except ValueError:
         abort(400)
 
